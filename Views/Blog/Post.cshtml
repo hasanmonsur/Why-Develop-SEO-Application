@@ -1,0 +1,30 @@
+﻿@model Post
+@{
+    ViewBag.Title = ViewBag.Title;
+}
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <meta name="description" content="@ViewBag.MetaDescription" />
+    <meta name="keywords" content="@ViewBag.MetaKeywords" />
+    <meta name="robots" content="index, follow" />
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+        {
+            "@@context": "https://schema.org",
+            "@@type": "BlogPosting",
+            "headline": "@ViewBag.Title",
+            "description": "@ViewBag.MetaDescription",
+            "datePublished": "@Model.PublishedDate.ToString("yyyy-MM-dd")",
+            "author": {
+                "@@type": "Person",
+                "name": "Your Author Name"
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>@Model.Title</h1>
+    <p>@Model.Content</p>
+</body>
+</html>
