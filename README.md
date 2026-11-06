@@ -41,16 +41,16 @@ The application seeds one sample post on startup when the `Posts` table is empty
 
 ```mermaid
 flowchart LR
-    Visitor[Visitor or search crawler] -->|GET /blog/{slug}| Routing[ASP.NET Core routing]
+    Visitor[Visitor or search crawler] -->|GET blog post| Routing[ASP.NET Core routing]
     Routing --> BlogController[BlogController]
     BlogController -->|Find post by slug| EFCore[Entity Framework Core]
-    EFCore --> SQLite[(SQLite: crawler.db)]
+    EFCore --> SQLite[(SQLite database)]
     SQLite -->|Post fields| EFCore
     EFCore --> BlogController
-    BlogController -->|Post + SEO view data| Razor[Views/Blog/Post.cshtml]
-    Razor -->|HTML: content, metadata, BlogPosting JSON-LD| Visitor
+    BlogController -->|Post and SEO view data| Razor[Blog post Razor view]
+    Razor -->|HTML content metadata and JSON-LD| Visitor
 
-    Crawler[Search crawler] -->|GET /sitemap.xml| SitemapController[SitemapController]
+    Crawler[Search crawler] -->|GET sitemap| SitemapController[SitemapController]
     SitemapController -->|Read posts| EFCore
     EFCore --> SQLite
     SitemapController -->|XML URL set| Crawler
@@ -64,20 +64,20 @@ sequenceDiagram
     actor Visitor
     participant Router as ASP.NET Core Router
     participant Controller as BlogController
-    participant Context as AppDbContext / EF Core
+    participant Context as AppDbContext and EF Core
     participant DB as SQLite
     participant View as Blog Razor View
 
-    Visitor->>Router: GET /blog/{slug}
-    Router->>Controller: Post(slug)
-    Controller->>Context: FirstOrDefaultAsync(post.Slug == slug)
-    Context->>DB: SELECT matching post
-    DB-->>Context: Post row (or no match)
-    Context-->>Controller: Post (or null)
+    Visitor->>Router: GET blog post by slug
+    Router->>Controller: Post with slug
+    Controller->>Context: Find post matching slug
+    Context->>DB: Select matching post
+    DB-->>Context: Post row or no match
+    Context-->>Controller: Post or null
     alt Post found
-        Controller->>Controller: Set title and meta description/keywords
+        Controller->>Controller: Set title and metadata
         Controller->>View: Render post model and view data
-        View-->>Visitor: HTML with title, meta tags, JSON-LD, content
+        View-->>Visitor: HTML with metadata JSON-LD and content
     else Post not found
         Controller-->>Visitor: HTTP 404 Not Found
     end
